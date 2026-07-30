@@ -1,0 +1,7 @@
+{
+    "@@locale": "en",
+
+    "pushNotification": "Push Notification",
+    "fieldDescription": "Description",
+    "fieldTitle": "Title"
+}

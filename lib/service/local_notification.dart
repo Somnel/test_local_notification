@@ -3,14 +3,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class LocalNotificationService {
   static final LocalNotificationService _instance = LocalNotificationService._();
   final _plugin = FlutterLocalNotificationsPlugin();
+  late NotificationAppLaunchDetails? _details;
+  late bool _didNotificationLaunchApp;
 
   LocalNotificationService._();
 
   static LocalNotificationService get instance {
     return _instance;
   }
-
-  
 
   Future<void> init() async {
     const initSettingsAndroid = AndroidInitializationSettings(
@@ -29,20 +29,28 @@ class LocalNotificationService {
       description: 'Default Test',
       importance: Importance.high
     );
+
+
+    _details = await _plugin.getNotificationAppLaunchDetails();
+    _didNotificationLaunchApp = _details?.didNotificationLaunchApp ?? false;
     await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(androidChannel);
   }
 
-  NotificationDetails get androidDetails {
-    return const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'default_channel', 
-        'Default',
-        channelDescription: 'Default Test',
-        importance: Importance.high,
-        priority: Priority.high
-      )
-    );
+  Future<bool> isAndroidPermissionGranted() async {
+    return await _plugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.areNotificationsEnabled() 
+      ?? false;
   }
+
+  Future<bool> requestAndroidPermission() async {
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation = _plugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+    return await androidImplementation?.requestNotificationsPermission() ?? false;
+  }
+
+  
 
   Future<void> showNotification({
     int id = 0,
@@ -53,7 +61,21 @@ class LocalNotificationService {
       id: id,
       title: title,
       body: body,
-      notificationDetails: androidDetails
+      notificationDetails: notificationDetails
     );
   }
+
+  NotificationDetails get notificationDetails =>
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        'default_channel', 
+        'Default',
+        channelDescription: 'Default Test',
+        importance: Importance.high,
+        priority: Priority.high,
+        ticker: 'ticker'
+      )
+    );
+
+  bool didNotificationLaunchApp() => _didNotificationLaunchApp;
 }
