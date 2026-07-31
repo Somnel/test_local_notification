@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:test_notifications/home.dart';
 
 class AppTheme extends StatelessWidget {
   const AppTheme({
     super.key, 
-    required this.appTitle
+    required this.appTitle,
+    required this.child
   });
 
   final String appTitle;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class AppTheme extends StatelessWidget {
         Locale('en'),
         Locale('pt')
       ],
-      home: const HomePage(),
+      home: child,
     );
   }
 }
