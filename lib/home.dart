@@ -45,15 +45,29 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
           child: Column(
-            mainAxisAlignment: .center,
-            spacing: 12,
+            crossAxisAlignment: .stretch,
+            spacing: 16,
             children: [
+              DecoratedBox(
+                decoration: BottomBorder(colorScheme.outline),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    'Criar Notificações', 
+                    style: theme.textTheme.headlineMedium?.copyWith(color: colorScheme.onSurface) 
+                          ?? TextStyle(fontSize: 26)
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
               TextField(
                 controller: _titleControl,
                 decoration: InputDecoration(
@@ -66,44 +80,91 @@ class _HomePageState extends State<HomePage> {
                   labelText: localization.fieldDescription
                 ),
               ),
-              ElevatedButton.icon(
-                onPressed: createNotification, 
-                label: Text(localization.pushNotification),
-                icon: const Icon(Icons.add_alert)
+              Padding(
+                padding: const .only(top: 16),
+                child: Text(
+                  'Schedule',
+                  style: theme.textTheme.titleMedium ?? const TextStyle(),
+                ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  final TimeOfDay? time = await showTimePicker(
-                    context: context, 
-                    initialTime: TimeOfDay.now(),
-                    initialEntryMode: .dial,
-                    orientation: .portrait,
-                    builder: (BuildContext context, Widget? child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(materialTapTargetSize: .padded),
-                        child: Directionality(
-                          textDirection: .rtl, 
-                          child: MediaQuery(
-                            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true), 
-                            child: child!
-                          )
-                        ),
-                      );
-                    }
-                  );
-
-                  setState(() {
-                    selectedTime = time;
-                  });
-                }, 
-                child: const Text('Open MediaQuery')
-              ),
-              if(selectedTime != null) 
-                Text('Selected Time ${selectedTime!.format(context)}')
+              Container(
+                padding: .symmetric(vertical: 4, horizontal: 3),
+                decoration: BottomBorder(selectedTime != null ? colorScheme.primary : colorScheme.onSurface).copyWith(
+                  color: colorScheme.surfaceContainerHighest,
+                ),
+                child: TextButton.icon(
+                  onPressed: () async {
+                    final TimeOfDay? time = await showTimePicker(
+                      context: context, 
+                      initialTime: TimeOfDay.now(),
+                      initialEntryMode: .dial,
+                      orientation: .portrait,
+                      builder: (BuildContext context, Widget? child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(materialTapTargetSize: .padded),
+                          child: Directionality(
+                            textDirection: .rtl, 
+                            child: MediaQuery(
+                              data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true), 
+                              child: child!
+                            )
+                          ),
+                        );
+                      }
+                    );
+              
+                    setState(() {
+                      selectedTime = time;
+                    });
+                  }, 
+                  label: SizedBox(
+                    width: .infinity,
+                    child: Text(
+                      selectedTime?.format(context) ?? 'Timer', 
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: .9),
+                        letterSpacing: 1.2
+                      )
+                    ),
+                  ),
+                  iconAlignment: .end,
+                  icon: Icon(Icons.alarm_add)
+                ),
+              )
             ],
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.large(
+        onPressed: (){},
+        child: Icon(Icons.add_alert),
+      ),
     );
+  }
+
+  // ignore: non_constant_identifier_names
+  BoxDecoration BottomBorder(Color borderColor) {
+    return BoxDecoration(
+      border: Border(
+        bottom: BorderSide(
+          width: 1,
+          color: borderColor
+        )
+      )
+    );
+  }
+}
+
+class TimerField extends StatefulWidget {
+  const TimerField({super.key});
+
+  @override
+  State<TimerField> createState() => _TimerFieldState();
+}
+
+class _TimerFieldState extends State<TimerField> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
